@@ -23,7 +23,7 @@ namespace CarParkSimulation
         }
 
         //Operations
-        public void TicketEntered(int index)
+        public void TokenEntered(int index)
         {
             if (index != -1)        //index is -1 when no item was selected
             {
@@ -38,7 +38,7 @@ namespace CarParkSimulation
         {
             if (Convert.ToDouble(money) == tokenPrice)
             {
-                activeTokens.PayTicket(tokenIndex);
+                activeTokens.PayToken(tokenIndex);
                 message = "Fee is paid, please take your ticket.";
                 feePaid = true;
             }

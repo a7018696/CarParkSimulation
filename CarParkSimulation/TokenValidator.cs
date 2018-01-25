@@ -29,15 +29,17 @@ namespace CarParkSimulation
             message = "Please insert your ticket.";
         }
 
-        public void TicketEntered(int index)
+        public void TokenEntered(int index)
         {
             if (index != -1) //Index is -1 if no ticket was selected
             {
-                if (activeTokens.FetchToken(index) == true)
+                if (activeTokens.GetPaid(index) == true)
                 {
+                    int bayType;
+                    bayType = activeTokens.GetBayType(index);
                     activeTokens.RemoveToken(index);
                     message = "Thank you, drive safely.";
-                    carPark.TicketValidated();
+                    carPark.TicketValidated(bayType);
                 }
                 else
                 {

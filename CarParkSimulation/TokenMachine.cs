@@ -30,11 +30,11 @@ namespace CarParkSimulation
             message = "Please select the type of bay you would like.";
         }
 
-        public void GiveToken()
+        public void GiveToken(int bayType, bool prepaid)
         {
             message = "Thank you, enjoy your stay.";
-            activeTokens.AddToken(new Token());
-            carPark.TokenDispensed();
+            activeTokens.AddToken(new Token(bayType, prepaid));
+            carPark.TokenDispensed(bayType);
         }
 
         public void DefaultMessage()              //Setter

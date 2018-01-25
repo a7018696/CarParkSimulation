@@ -12,8 +12,7 @@ namespace CarParkSimulation
         private TokenValidator tokenValidator;
         private FrontSign frontSign;
         private Barrier entryBarrier;
-        private Barrier exitBarrier1;
-        private Barrier exitBarrier2;
+        private Barrier exitBarrier;
 
         //Attributes
         private int currentNormal;
@@ -26,14 +25,13 @@ namespace CarParkSimulation
 
         //Constructor
         public CarPark(TokenMachine tokenMachine, TokenValidator tokenValidator, 
-            FrontSign frontSign, Barrier entryBarrier, Barrier exitBarrier1, Barrier exitBarrier2)
+            FrontSign frontSign, Barrier entryBarrier, Barrier exitBarrier)
         {
             this.tokenMachine = tokenMachine;
             this.tokenValidator = tokenValidator;
             this.frontSign = frontSign;
             this.entryBarrier = entryBarrier;
-            this.exitBarrier1 = exitBarrier1;
-            this.exitBarrier2 = exitBarrier2;
+            this.exitBarrier = exitBarrier;
 
             currentNormal = normalSpaces;
             currentDisabled = disabledSpaces;
@@ -50,17 +48,39 @@ namespace CarParkSimulation
             tokenValidator.CarArrived();
         }
 
-        public void TokenDispensed()
+        public void TokenDispensed(int bayType)
         {
+            switch (bayType)
+            {
+                case 0:
+                    currentNormal--;
+                    break;
+                case 1:
+                    currentDisabled--;
+                    break;
+                case 2:
+                    currentFamily--;
+                    break;
+            }
             entryBarrier.Raise();
-            currentNormal--;
             UpdateSpaces();
         }
 
-        public void TicketValidated()
+        public void TicketValidated(int bayType)
         {
-            exitBarrier1.Raise();
-            currentNormal++;
+            switch (bayType)
+            {
+                case 0:
+                    currentNormal++;
+                    break;
+                case 1:
+                    currentDisabled++;
+                    break;
+                case 2:
+                    currentFamily++;
+                    break;
+            }
+            exitBarrier.Raise();
             UpdateSpaces();
         }
 
@@ -72,8 +92,8 @@ namespace CarParkSimulation
 
         public void CarExitedCarPark()
         {
-            exitBarrier1.Lower();
-            tokenValidator.DefaultMessage();
+            exitBarrier.Lower();
+            tokenValidator.ClearMessage();
         }
 
         public void UpdateSpaces()

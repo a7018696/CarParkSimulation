@@ -13,12 +13,12 @@ namespace CarParkSimulation
     public partial class SimulatorInterface : Form
     {
         // Attributes ///        
-        private TicketMachine ticketMachine;
-        private ActiveTickets activeTickets;
-        private TicketValidator ticketValidator;
+        private TokenMachine tokenMachine;
+        private ActiveTokens activeTokens;
+        private TokenValidator tokenValidator;
         private Barrier entryBarrier;
         private Barrier exitBarrier;
-        private FullSign fullSign;
+        private FrontSign frontSign;
         private CarPark carPark;
         private EntrySensor entrySensor;
         private ExitSensor exitSensor;
@@ -35,86 +35,109 @@ namespace CarParkSimulation
 
 
         // Operations ///
-        private void ResetSystem(object sender, EventArgs e)
+        private void btnReset_Click(object sender, EventArgs e)
         {
-            // STUDENTS:
-            ///// Class contructors are not defined so there will be errors
-            ///// This code is correct for the basic version though
-            activeTickets = new ActiveTickets();
-            ticketMachine = new TicketMachine(activeTickets);
-            ticketValidator = new TicketValidator(activeTickets);
+            activeTokens = new ActiveTokens();
+            tokenMachine = new TokenMachine(activeTokens);
+            tokenValidator = new TokenValidator(activeTokens);
             entryBarrier = new Barrier();
             exitBarrier = new Barrier();
-            fullSign = new FullSign();
-            carPark = new CarPark(ticketMachine, ticketValidator, fullSign, entryBarrier, exitBarrier);
+            frontSign = new FrontSign();
+            carPark = new CarPark(tokenMachine, tokenValidator, frontSign, entryBarrier, exitBarrier);
             entrySensor = new EntrySensor(carPark);
             exitSensor = new ExitSensor(carPark);
-            payMachine = new PayMachine(activeTickets);
+            payMachine = new PayMachine(activeTokens);
 
-            ticketMachine.AssignCarPark(carPark);
-            ticketValidator.AssignCarPark(carPark);
+            tokenMachine.AssignCarPark(carPark);
+            tokenValidator.AssignCarPark(carPark);
 
             /////////////////////////////////////////
 
             btnCarArrivesAtEntrance.Visible = true;
-            btnDriverPressesForTicket.Visible = false;
+            btnDriverPressesForToken.Visible = false;
             btnCarEntersCarPark.Visible = false;
             btnCarArrivesAtExit.Visible = false;
-            btnDriverEntersTicket.Visible = false;
+            btnDriverEntersToken.Visible = false;
             btnCarExitsCarPark.Visible = false;
 
             UpdateDisplay();
         }
 
-        private void CarArrivesAtEntrance(object sender, EventArgs e)
+        private void btnCarArrivesAtEntrance_Click(object sender, EventArgs e)
         {
             entrySensor.CarDetected();
             UpdateDisplay();
         }
 
-        private void DriverPressesForTicket(object sender, EventArgs e)
+        private void btnDriverPressesForTicket_Click(object sender, EventArgs e)
         {
-            ticketMachine.PrintTicket();
+            if (rbtnDisabled.Checked == true)
+            {
+                tokenMachine.GiveToken(1, false); //Disabled bay
+            }
+            else if (rbtnFamily.Checked == true)
+            {
+                tokenMachine.GiveToken(2, false); //Family bay
+            }
+            else
+            {
+                tokenMachine.GiveToken(0, false); //Regular bay, the default option if none is selected
+            }
+
+            
             UpdateDisplay();
         }
 
-        private void CarEntersCarPark(object sender, EventArgs e)
+       /* private int RadioChecked()
+        {
+            int selected;
+            if r
+
+            return selected;
+        }*/
+
+        private void btnDriverEntersPrepaid_Click(object sender, EventArgs e)
+        {
+            UpdateDisplay();
+        }
+
+        private void btnCarEntersCarPark_Click(object sender, EventArgs e)
         {
             entrySensor.CarLeftSensor();
             UpdateDisplay();
         }
 
-        private void CarArrivesAtExit(object sender, EventArgs e)
+        private void btnCarArrivesAtExit_Click(object sender, EventArgs e)
         {
             exitSensor.CarDetected();
             UpdateDisplay();
         }
 
-        private void DriverEntersTicket(object sender, EventArgs e)
+        private void btnDriverEntersTicket_Click(object sender, EventArgs e)
         {
-            ticketValidator.TicketEntered(lstActiveTickets.SelectedIndex);
+            tokenValidator.TokenEntered(lstActiveTokens.SelectedIndex);
             UpdateDisplay();
         }
 
-        private void CarExitsCarPark(object sender, EventArgs e)
+        private void btnCarExitsCarPark_Click(object sender, EventArgs e)
         {
             exitSensor.CarLeftSensor();
             UpdateDisplay();
         }
 
-        private void btnDriverInsertsUnpaidTicket_Click(object sender, EventArgs e)
+        private void btnDriverInsertsUnpaidTicket_Click_1(object sender, EventArgs e)
         {
-            payMachine.TicketEntered(lstActiveTickets.SelectedIndex);
+            payMachine.TokenEntered(lstActiveTokens.SelectedIndex);
             UpdateDisplay();
         }
 
-        private void btnDriverPaysFee_Click(object sender, EventArgs e)
+        private void btnDriverPaysFee_Click_1(object sender, EventArgs e)
         {
             payMachine.PayFee(txtMoney.Text);
             UpdateDisplay();
         }
 
-        private void btnDriverTakesPaidTicket_Click(object sender, EventArgs e)
+        private void btnDriverTakesPaidTicket_Click_1(object sender, EventArgs e)
         {
             payMachine.ClearMachine();
             UpdateDisplay();
@@ -125,14 +148,17 @@ namespace CarParkSimulation
 
             //Machime message retrival
             //Ticket machine
-            lblTicketMachine.Text = ticketMachine.GetMessage();
+            lblTicketMachine.Text = tokenMachine.GetMessage();
             //Ticket Validator
-            lblTicketValidator.Text = ticketValidator.GetMessage();
+            lblTicketValidator.Text = tokenValidator.GetMessage();
             //Pay Machine
             lblPayMachine.Text = payMachine.GetMessage();
 
 
-            lblSpaces.Text = carPark.GetCurrentSpaces().ToString();
+
+            lblRegular.Text = carPark.GetCurrentNormal().ToString();
+            lblDisabled.Text = carPark.GetCurrentDisabled().ToString();
+            lblFamily.Text = carPark.GetCurrentFamily().ToString();
 
 
             //Entry logic
@@ -140,7 +166,7 @@ namespace CarParkSimulation
             {
                 //Car is ready to enter
                 lblEntryBarrier.Text = "True";
-                btnDriverPressesForTicket.Visible = false;
+                btnDriverPressesForToken.Visible = false;
                 btnCarEntersCarPark.Visible = true;
             }
             else
@@ -151,7 +177,7 @@ namespace CarParkSimulation
                     //New car at machine
                     lblEntrySensor.Text = "True";
                     btnCarArrivesAtEntrance.Visible = false;
-                    btnDriverPressesForTicket.Visible = true;
+                    btnDriverPressesForToken.Visible = true;
 
                 }
                 else
@@ -168,7 +194,7 @@ namespace CarParkSimulation
             {
                 //Car is ready to enter
                 lblExitBarrier.Text = "True";
-                btnDriverEntersTicket.Visible = false;
+                btnDriverEntersToken.Visible = false;
                 btnCarExitsCarPark.Visible = true;
             }
             else
@@ -179,7 +205,7 @@ namespace CarParkSimulation
                     //New car at machine
                     lblExitSensor.Text = "True";
                     btnCarArrivesAtExit.Visible = false;
-                    btnDriverEntersTicket.Visible = true;
+                    btnDriverEntersToken.Visible = true;
                 }
                 else
                 {
@@ -195,7 +221,7 @@ namespace CarParkSimulation
             {
                 lblPayMachinePaid.Text = "True";
                 btnDriverPaysFee.Visible = false;
-                btnDriverTakesPaidTicket.Visible = true;
+                btnDriverTakesPaidToken.Visible = true;
             }
             else
             {
@@ -203,46 +229,36 @@ namespace CarParkSimulation
                 if (payMachine.GetTicketIn() == true)
                 {
                     lblPayMachineSensor.Text = "True";
-                    btnDriverInsertsUnpaidTicket.Visible = false;
+                    btnDriverInsertsUnpaidToken.Visible = false;
                     btnDriverPaysFee.Visible = true;
                 }
                 else
                 {
                     lblPayMachineSensor.Text = "False";
-                    btnDriverTakesPaidTicket.Visible = false;
-                    btnDriverInsertsUnpaidTicket.Visible = true;
+                    btnDriverTakesPaidToken.Visible = false;
+                    btnDriverInsertsUnpaidToken.Visible = true;
                 }
             }
 
             //Listbox contents
-            lstActiveTickets.Items.Clear();
+            lstActiveTokens.Items.Clear();
 
-            foreach (Ticket ticket in activeTickets.GetTickets())
+            foreach (Token token in activeTokens.GetTokens())
             {
-                lstActiveTickets.Items.Add("#" + ticket.GetHashCode() + ": " + ticket.IsPaid());
+                lstActiveTokens.Items.Add("#" + token.GetHashCode() + ": " + token.GetBayType() + " " + token.IsPrepaid() + " " + token.IsPaid());
             }
 
-            lblFullSign.Text = fullSign.IsLit().ToString();
             //Fullsign button overrides
-            if (fullSign.IsLit() == true)
-            {
-                btnCarArrivesAtEntrance.Visible = false;
-            }
 
-            if (lstActiveTickets.Items.Count == 0)
+            if (lstActiveTokens.Items.Count == 0)
             {
                 btnCarArrivesAtExit.Visible = false;
             }
 
-            if ((entryBarrier.IsLifted() == true) && (entrySensor.IsCarOnSensor() == true) && (lstActiveTickets.Items.Count == 1))
+            if ((entryBarrier.IsLifted() == true) && (entrySensor.IsCarOnSensor() == true) && (lstActiveTokens.Items.Count == 1))
             {
                 btnCarArrivesAtExit.Visible = false;
             }
-        }
-
-        private void btnReset_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

@@ -10,20 +10,34 @@ namespace CarParkSimulation
     {
         //Attribute
         private bool paid;
+        private bool prepaid;
+        private int bayType;
 
         //Constructor
-        public Token()
+        public Token(int bayType, bool prepaid)
         {
+            this.prepaid = prepaid;
+            this.bayType = bayType;
             paid = false;
         }
 
         //Operations
-        public bool IsPaid()            //Getter
+        //Getters
+        public bool IsPaid()
         {
             return paid;
         }
+        public bool IsPrepaid()
+        {
+            return prepaid;
+        }
+        public int GetBayType()
+        {
+            return bayType;
+        }
 
-        public void SetPaid()           //Setter
+        //Setter
+        public void SetPaid()           
         {
             paid = true;
         }

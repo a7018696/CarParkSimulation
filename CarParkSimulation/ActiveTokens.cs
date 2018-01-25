@@ -33,14 +33,23 @@ namespace CarParkSimulation
             tokens.ElementAt(selectedToken).SetPaid();
         }
 
-        public bool FetchToken(int selectedToken)
-        {
-            return tokens.ElementAt(selectedToken).IsPaid();
-        }
-
-        public List<Token> GetTokens()                //Getter
+        //Getters
+        public List<Token> GetTokens()
         {
             return tokens;
+        }
+
+        public bool GetPaid(int index)
+        {
+            return tokens.ElementAt(index).IsPaid();
+        }
+        public bool GetPrepaid(int index)
+        {
+            return tokens.ElementAt(index).IsPrepaid();
+        }
+        public int GetBayType(int index)
+        {
+            return tokens.ElementAt(index).GetBayType();
         }
     }
 }
