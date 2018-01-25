@@ -13,7 +13,9 @@ namespace CarParkSimulation
         private bool tokenIn;
         private bool feePaid;
         private int tokenIndex;
-        private double tokenPrice = 4.99;
+        private double tokenRegularPrice = 3.99;
+        private double tokenDisabledPrice = 4.99;
+        private double tokenFamilyPrice = 5.99;
         ActiveTokens activeTokens;
 
         //Constructor
@@ -27,16 +29,26 @@ namespace CarParkSimulation
         {
             if (index != -1)        //index is -1 when no item was selected
             {
-                tokenIndex = index;
-                tokenIn = true;
-                feePaid = false;
-                message = "The fee is £" + Convert.ToString(tokenPrice) + ".";
+                if (activeTokens.GetPrepaid(index) == true)
+                {
+                    feePaid = true;
+                    tokenIn = true;
+                    activeTokens.PayToken(index);
+                    message = "Prepaid token confirmed, no payment required.";
+                }
+                else
+                {
+                    tokenIndex = index;
+                    tokenIn = true;
+                    feePaid = false;
+                    message = "The fee is £" + Convert.ToString(tokenRegularPrice) + ".";
+                }
             }
         }
 
         public void PayFee(string money)
         {
-            if (Convert.ToDouble(money) == tokenPrice)
+            if (Convert.ToDouble(money) == tokenRegularPrice)
             {
                 activeTokens.PayToken(tokenIndex);
                 message = "Fee is paid, please take your ticket.";

@@ -83,21 +83,23 @@ namespace CarParkSimulation
             {
                 tokenMachine.GiveToken(0, false); //Regular bay, the default option if none is selected
             }
-
-            
             UpdateDisplay();
         }
 
-       /* private int RadioChecked()
-        {
-            int selected;
-            if r
-
-            return selected;
-        }*/
-
         private void btnDriverEntersPrepaid_Click(object sender, EventArgs e)
         {
+            if (rbtnDisabled.Checked == true)
+            {
+                tokenMachine.GiveToken(1, true); //Disabled bay
+            }
+            else if (rbtnFamily.Checked == true)
+            {
+                tokenMachine.GiveToken(2, true); //Family bay
+            }
+            else
+            {
+                tokenMachine.GiveToken(0, true); //Regular bay, the default option if none is selected
+            }
             UpdateDisplay();
         }
 
@@ -167,6 +169,7 @@ namespace CarParkSimulation
                 //Car is ready to enter
                 lblEntryBarrier.Text = "True";
                 btnDriverPressesForToken.Visible = false;
+                btnDriverEntersPrepaid.Visible = false;
                 btnCarEntersCarPark.Visible = true;
             }
             else
@@ -178,6 +181,7 @@ namespace CarParkSimulation
                     lblEntrySensor.Text = "True";
                     btnCarArrivesAtEntrance.Visible = false;
                     btnDriverPressesForToken.Visible = true;
+                    btnDriverEntersPrepaid.Visible = true;
 
                 }
                 else
@@ -221,6 +225,7 @@ namespace CarParkSimulation
             {
                 lblPayMachinePaid.Text = "True";
                 btnDriverPaysFee.Visible = false;
+                btnDriverInsertsUnpaidToken.Visible = false;
                 btnDriverTakesPaidToken.Visible = true;
             }
             else
